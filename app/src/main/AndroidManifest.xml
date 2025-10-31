@@ -26,6 +26,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.dashboard.DashboardActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.medicines.MedicinesActivity"
             android:exported="false" />
         <activity

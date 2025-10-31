@@ -36,4 +36,22 @@
     <string name="enable_alarm">Activar recordatorio</string>
     <string name="disable_alarm">Desactivar recordatorio</string>
     <string name="permission_exact_alarm_rationale">Debes permitir alarmas exactas para activar los recordatorios.</string>
+    <string name="dashboard_current_time_label">Hora actual</string>
+    <string name="dashboard_manage_button">Gestionar medicinas y alertas</string>
+    <string name="dashboard_empty_message">No hay medicamentos pendientes por mostrar.</string>
+    <string name="dashboard_next_dose_format">Próxima toma: %1$s</string>
+    <string name="dashboard_due_in_format">Faltan %1$s</string>
+    <string name="dashboard_overdue_format">Retrasado %1$s</string>
+    <string name="dashboard_due_now">¡Es hora de tomar el medicamento!</string>
+    <string name="dashboard_no_reminder">Sin recordatorio programado</string>
+    <string name="dashboard_mark_done">Listo</string>
+    <string name="dashboard_dismiss_content_description">Ocultar medicamento</string>
+    <plurals name="dashboard_hours">
+        <item quantity="one">%d hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
+    <plurals name="dashboard_minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
 </resources>
