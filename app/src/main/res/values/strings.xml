@@ -2,6 +2,7 @@
     <string name="app_name">MiMedicina</string>
     <string name="add_profile">Agregar perfil</string>
     <string name="add_medicine">Agregar medicamento</string>
+    <string name="edit_medicine">Editar medicamento</string>
     <string name="profile_name_hint">Nombre del perfil</string>
     <string name="medicine_name_hint">Nombre del medicamento</string>
     <string name="medicine_presentation_hint">Presentación (tableta, jarabe, etc.)</string>
