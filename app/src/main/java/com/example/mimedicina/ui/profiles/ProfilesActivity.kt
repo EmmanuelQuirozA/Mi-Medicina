@@ -15,7 +15,7 @@ import com.example.mimedicina.MiMedicinaApp
 import com.example.mimedicina.R
 import com.example.mimedicina.databinding.ActivityProfilesBinding
 import com.example.mimedicina.model.Profile
-import com.example.mimedicina.ui.medicines.MedicinesActivity
+import com.example.mimedicina.ui.dashboard.DashboardActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -30,7 +30,7 @@ class ProfilesActivity : AppCompatActivity() {
 
     private val adapter: ProfilesAdapter by lazy {
         ProfilesAdapter(
-            onProfileSelected = ::openMedicines,
+            onProfileSelected = ::openDashboard,
             onProfileLongPressed = ::confirmDeleteProfile
         )
     }
@@ -110,10 +110,10 @@ class ProfilesActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun openMedicines(profile: Profile) {
-        val intent = Intent(this, MedicinesActivity::class.java).apply {
-            putExtra(MedicinesActivity.EXTRA_PROFILE_ID, profile.id)
-            putExtra(MedicinesActivity.EXTRA_PROFILE_NAME, profile.name)
+    private fun openDashboard(profile: Profile) {
+        val intent = Intent(this, DashboardActivity::class.java).apply {
+            putExtra(DashboardActivity.EXTRA_PROFILE_ID, profile.id)
+            putExtra(DashboardActivity.EXTRA_PROFILE_NAME, profile.name)
         }
         startActivity(intent)
     }
