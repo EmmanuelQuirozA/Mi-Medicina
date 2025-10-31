@@ -30,4 +30,9 @@
     <string name="save">Guardar</string>
     <string name="accept">Aceptar</string>
     <string name="next_alarm_unavailable">Sin recordatorio programado</string>
+    <string name="profiles_label">Perfiles</string>
+    <string name="edit_profile">Editar</string>
+    <string name="medicine_take_every_format">Tomar cada %1$d horas</string>
+    <string name="enable_alarm">Activar recordatorio</string>
+    <string name="disable_alarm">Desactivar recordatorio</string>
 </resources>

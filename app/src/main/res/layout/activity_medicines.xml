@@ -4,18 +4,56 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_soft"
     tools:context=".ui.medicines.MedicinesActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="4dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:navigationIconTint="@color/white"
-            app:titleCentered="true" />
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:titleCentered="true">
+
+            <TextView
+                android:id="@+id/toolbar_back_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/profiles_label"
+                android:textAllCaps="false"
+                android:textColor="@color/blue_primary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/toolbar_title_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/toolbar_edit_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:fontFamily="sans-serif"
+                android:text="@string/edit_profile"
+                android:textAllCaps="false"
+                android:textColor="@color/blue_primary"
+                android:textSize="16sp" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -34,6 +72,7 @@
             android:text="@string/empty_medicines_message"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            android:textColor="@color/text_secondary"
             android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -42,10 +81,10 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:clipToPadding="false"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="88dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="112dp"
             tools:listitem="@layout/item_medicine" />
     </LinearLayout>
 
@@ -54,8 +93,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_margin="20dp"
         android:contentDescription="@string/add_medicine"
+        app:backgroundTint="@color/blue_primary"
+        app:tint="@color/white"
         app:srcCompat="@drawable/ic_add" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.mimedicina.MiMedicinaApp
@@ -82,6 +81,7 @@ class MedicinesActivity : AppCompatActivity() {
         }
 
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         setupToolbar()
         setupRecyclerView()
         observeMedicines()
@@ -89,18 +89,16 @@ class MedicinesActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        binding.toolbar.title = profileName
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
-        binding.toolbar.setNavigationOnClickListener { finish() }
+        binding.toolbarTitleTextView.text = profileName
+        binding.toolbarBackTextView.setOnClickListener { finish() }
+        binding.toolbarEditTextView.setOnClickListener {
+            Toast.makeText(this, R.string.edit_profile, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupRecyclerView() {
         binding.medicinesRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.medicinesRecyclerView.adapter = adapter
-        binding.medicinesRecyclerView.addItemDecoration(
-            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        )
     }
 
     private fun observeMedicines() {

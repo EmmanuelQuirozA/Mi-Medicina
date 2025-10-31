@@ -3,99 +3,126 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    android:layout_marginBottom="16dp"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="4dp"
+    app:cardUseCompatPadding="true"
+    app:strokeColor="@color/divider_light"
+    app:strokeWidth="1dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:minHeight="100dp"
         android:padding="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+        <FrameLayout
+            android:id="@+id/medicine_image_container"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_medicine_icon"
+            android:clipToOutline="true"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/medicine_photo_image_view"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:contentDescription="@string/medicine_photo_hint"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_launcher_foreground"
-                android:visibility="gone"
-                android:layout_marginEnd="12dp" />
+                android:visibility="gone" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+            <TextView
+                android:id="@+id/medicine_initials_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="@color/blue_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </FrameLayout>
 
-                <TextView
-                    android:id="@+id/medicine_name_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+        <TextView
+            android:id="@+id/medicine_name_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/medicine_alarm_button"
+            app:layout_constraintStart_toEndOf="@id/medicine_image_container"
+            app:layout_constraintTop_toTopOf="@id/medicine_image_container" />
 
-                <TextView
-                    android:id="@+id/medicine_presentation_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="@color/black" />
+        <TextView
+            android:id="@+id/medicine_presentation_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@+id/delete_medicine_button"
+            app:layout_constraintStart_toEndOf="@id/medicine_image_container"
+            app:layout_constraintTop_toBottomOf="@id/medicine_name_text_view" />
 
-                <TextView
-                    android:id="@+id/medicine_comments_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="@color/black" />
-            </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/delete_medicine_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/delete_medicine"
-                android:src="@drawable/ic_delete"
-                android:tint="@color/purple_500" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/medicine_comments_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@+id/delete_medicine_button"
+            app:layout_constraintStart_toEndOf="@id/medicine_image_container"
+            app:layout_constraintTop_toBottomOf="@id/medicine_presentation_text_view" />
 
         <TextView
             android:id="@+id/medicine_frequency_text_view"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/blue_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/delete_medicine_button"
+            app:layout_constraintStart_toEndOf="@id/medicine_image_container"
+            app:layout_constraintTop_toBottomOf="@id/medicine_comments_text_view" />
+
+        <ImageButton
+            android:id="@+id/medicine_alarm_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_alarm_button_inactive"
+            android:contentDescription="@string/enable_alarm"
+            android:scaleType="center"
+            android:src="@drawable/ic_bell"
+            android:tint="@color/icon_inactive"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/medicine_name_text_view" />
+
+        <ImageButton
+            android:id="@+id/delete_medicine_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_marginTop="8dp"
-            android:textColor="@color/black" />
+            android:background="@drawable/bg_delete_button"
+            android:contentDescription="@string/delete_medicine"
+            android:src="@drawable/ic_delete"
+            android:tint="@color/danger_red"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/medicine_alarm_button" />
 
-        <TextView
-            android:id="@+id/medicine_start_time_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/black" />
-
-        <TextView
-            android:id="@+id/medicine_next_reminder_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/black" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/medicine_alarm_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/enable_alarm_label" />
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
