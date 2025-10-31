@@ -17,7 +17,8 @@ import java.util.Locale
 
 class MedicinesAdapter(
     private val onToggleAlarm: (Medicine, Boolean) -> Unit,
-    private val onDelete: (Medicine) -> Unit
+    private val onDelete: (Medicine) -> Unit,
+    private val onEdit: (Medicine) -> Unit
 ) : ListAdapter<Medicine, MedicinesAdapter.ViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -76,6 +77,7 @@ class MedicinesAdapter(
             }
 
             binding.deleteMedicineButton.setOnClickListener { onDelete(medicine) }
+            binding.root.setOnClickListener { onEdit(medicine) }
         }
     }
 

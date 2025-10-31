@@ -49,7 +49,8 @@ class MedicinesActivity : AppCompatActivity() {
     private val adapter: MedicinesAdapter by lazy {
         MedicinesAdapter(
             onToggleAlarm = ::toggleAlarm,
-            onDelete = ::confirmDeleteMedicine
+            onDelete = ::confirmDeleteMedicine,
+            onEdit = ::showEditMedicineDialog
         )
     }
 
@@ -89,7 +90,7 @@ class MedicinesActivity : AppCompatActivity() {
         setupToolbar()
         setupRecyclerView()
         observeMedicines()
-        binding.addMedicineButton.setOnClickListener { showAddMedicineDialog() }
+        binding.addMedicineButton.setOnClickListener { showMedicineDialog() }
     }
 
     private fun setupToolbar() {
@@ -133,15 +134,37 @@ class MedicinesActivity : AppCompatActivity() {
         }
     }
 
-    private fun showAddMedicineDialog() {
+    private fun showMedicineDialog(existingMedicine: Medicine? = null) {
         val dialogBinding = DialogAddMedicineBinding.inflate(layoutInflater)
         currentDialogBinding = dialogBinding
-        selectedImageUri = null
-        dialogBinding.medicinePhotoImageView.isVisible = false
-        dialogBinding.startDateErrorTextView.isVisible = false
-        dialogBinding.startDateButton.tag = null
 
-        val calendar = Calendar.getInstance()
+        val isEditing = existingMedicine != null
+        selectedImageUri = existingMedicine?.photoUri
+
+        dialogBinding.medicineNameInput.editText?.setText(existingMedicine?.name.orEmpty())
+        dialogBinding.medicinePresentationInput.editText?.setText(existingMedicine?.presentation.orEmpty())
+        dialogBinding.medicineCommentsInput.editText?.setText(existingMedicine?.comments.orEmpty())
+        dialogBinding.medicineFrequencyInput.editText?.setText(
+            existingMedicine?.frequencyHours?.toString().orEmpty()
+        )
+        dialogBinding.enableAlarmSwitch.isChecked = existingMedicine?.alarmEnabled ?: false
+
+        val initialStartTime = existingMedicine?.startTimeMillis
+        dialogBinding.startDateButton.tag = initialStartTime
+        dialogBinding.startDateButton.text = initialStartTime?.let { formatDateTime(it) }
+            ?: getString(R.string.medicine_start_date_hint)
+        dialogBinding.startDateErrorTextView.isVisible = false
+
+        if (selectedImageUri.isNullOrBlank()) {
+            dialogBinding.medicinePhotoImageView.isVisible = false
+        } else {
+            dialogBinding.medicinePhotoImageView.isVisible = true
+            dialogBinding.medicinePhotoImageView.load(selectedImageUri)
+        }
+
+        val calendar = Calendar.getInstance().apply {
+            initialStartTime?.let { timeInMillis = it }
+        }
         dialogBinding.startDateButton.setOnClickListener {
             showDateTimePicker(calendar) { updatedCalendar ->
                 dialogBinding.startDateButton.text = formatDateTime(updatedCalendar.timeInMillis)
@@ -154,8 +177,9 @@ class MedicinesActivity : AppCompatActivity() {
             imagePicker.launch("image/*")
         }
 
+        val dialogTitle = if (isEditing) R.string.edit_medicine else R.string.add_medicine
         val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.add_medicine)
+            .setTitle(dialogTitle)
             .setView(dialogBinding.root)
             .setPositiveButton(R.string.save, null)
             .setNegativeButton(R.string.cancel, null)
@@ -187,34 +211,72 @@ class MedicinesActivity : AppCompatActivity() {
                             dialogBinding.medicineFrequencyInput.error = getString(R.string.error_empty_field)
                             return@setOnClickListener
                         }
-                        val medicine = Medicine(
-                            id = 0,
-                            profileId = profileId,
-                            name = name,
-                            presentation = presentation,
-                            comments = comments,
-                            photoUri = selectedImageUri,
-                            frequencyHours = frequencyHours,
-                            startTimeMillis = startTime,
-                            nextReminderTimeMillis = startTime,
-                            alarmEnabled = alarmEnabled
-                        )
-                        lifecycleScope.launch {
-                            try {
-                                val newId = viewModel.addMedicineWithResult(medicine)
-                                val savedMedicine = viewModel.getMedicine(newId) ?: return@launch
-                                if (alarmEnabled) {
-                                    val adjusted = adjustNextReminder(savedMedicine)
-                                    viewModel.updateMedicine(adjusted)
-                                    ensureNotificationPermission()
-                                    alarmScheduler.schedule(adjusted)
+
+                        if (alarmEnabled && !ensureExactAlarmPermission()) {
+                            return@setOnClickListener
+                        }
+
+                        if (existingMedicine == null) {
+                            val medicine = Medicine(
+                                id = 0,
+                                profileId = profileId,
+                                name = name,
+                                presentation = presentation,
+                                comments = comments,
+                                photoUri = selectedImageUri,
+                                frequencyHours = frequencyHours,
+                                startTimeMillis = startTime,
+                                nextReminderTimeMillis = startTime,
+                                alarmEnabled = alarmEnabled
+                            )
+                            lifecycleScope.launch {
+                                try {
+                                    val newId = viewModel.addMedicineWithResult(medicine)
+                                    val savedMedicine = viewModel.getMedicine(newId) ?: return@launch
+                                    if (alarmEnabled) {
+                                        val adjusted = adjustNextReminder(savedMedicine)
+                                        viewModel.updateMedicine(adjusted)
+                                        ensureNotificationPermission()
+                                        alarmScheduler.schedule(adjusted)
+                                    }
+                                } catch (error: Exception) {
+                                    Toast.makeText(
+                                        this@MedicinesActivity,
+                                        error.localizedMessage ?: getString(R.string.error_generic),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
-                            } catch (error: Exception) {
-                                Toast.makeText(
-                                    this@MedicinesActivity,
-                                    error.localizedMessage ?: getString(R.string.error_generic),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            }
+                        } else {
+                            var updated = existingMedicine.copy(
+                                name = name,
+                                presentation = presentation,
+                                comments = comments,
+                                photoUri = selectedImageUri,
+                                frequencyHours = frequencyHours,
+                                startTimeMillis = startTime,
+                                nextReminderTimeMillis = startTime,
+                                alarmEnabled = alarmEnabled
+                            )
+                            if (alarmEnabled) {
+                                updated = adjustNextReminder(updated)
+                            }
+                            lifecycleScope.launch {
+                                try {
+                                    viewModel.updateMedicine(updated)
+                                    if (alarmEnabled) {
+                                        ensureNotificationPermission()
+                                        alarmScheduler.schedule(updated)
+                                    } else {
+                                        alarmScheduler.cancel(updated.id)
+                                    }
+                                } catch (error: Exception) {
+                                    Toast.makeText(
+                                        this@MedicinesActivity,
+                                        error.localizedMessage ?: getString(R.string.error_generic),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
                         }
                         dialog.dismiss()
@@ -227,6 +289,10 @@ class MedicinesActivity : AppCompatActivity() {
             selectedImageUri = null
         }
         dialog.show()
+    }
+
+    private fun showEditMedicineDialog(medicine: Medicine) {
+        showMedicineDialog(medicine)
     }
 
     private fun showDateTimePicker(calendar: Calendar, onDateTimeSelected: (Calendar) -> Unit) {
