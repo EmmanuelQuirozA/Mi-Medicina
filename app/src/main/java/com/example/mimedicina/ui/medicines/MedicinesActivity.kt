@@ -1,11 +1,15 @@
 package com.example.mimedicina.ui.medicines
 
 import android.Manifest
+import android.app.AlarmManager
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.format.DateFormat
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -114,6 +118,9 @@ class MedicinesActivity : AppCompatActivity() {
     private fun toggleAlarm(medicine: Medicine, enabled: Boolean) {
         lifecycleScope.launch {
             if (enabled) {
+                if (!ensureExactAlarmPermission()) {
+                    return@launch
+                }
                 val adjusted = adjustNextReminder(medicine.copy(alarmEnabled = true))
                 viewModel.updateMedicine(adjusted)
                 ensureNotificationPermission()
@@ -262,6 +269,24 @@ class MedicinesActivity : AppCompatActivity() {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+    }
+
+    private fun ensureExactAlarmPermission(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(AlarmManager::class.java)
+            if (alarmManager?.canScheduleExactAlarms() == true) {
+                return true
+            }
+            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            }
+            Toast.makeText(this, R.string.permission_exact_alarm_rationale, Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
     }
 
     private fun adjustNextReminder(medicine: Medicine): Medicine {
