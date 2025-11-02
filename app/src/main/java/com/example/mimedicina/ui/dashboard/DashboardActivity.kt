@@ -10,12 +10,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mimedicina.MiMedicinaApp
 import com.example.mimedicina.databinding.ActivityDashboardBinding
 import com.example.mimedicina.model.Medicine
+import com.example.mimedicina.ui.common.applyEdgeToEdge
 import com.example.mimedicina.ui.medicines.MedicinesActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -28,14 +29,26 @@ class DashboardActivity : AppCompatActivity() {
     private val profileName: String by lazy { intent.getStringExtra(EXTRA_PROFILE_NAME) ?: "" }
 
     private val viewModel: DashboardViewModel by viewModels {
-        DashboardViewModel.Factory(app.medicinesRepository, profileId)
+        DashboardViewModel.Factory(
+            app.medicinesRepository,
+            app.reminderHistoryRepository,
+            app.alarmScheduler,
+            profileId
+        )
     }
 
     private val adapter: DashboardMedicinesAdapter by lazy {
-        DashboardMedicinesAdapter(::onMedicineDismissed)
+        DashboardMedicinesAdapter(
+            onMarkDone = ::onMedicineMarkedDone,
+            onDismiss = ::onMedicineDismissed
+        )
     }
 
-    private val hiddenMedicineIds = mutableSetOf<Long>()
+    private val historyAdapter: ReminderHistoryAdapter by lazy {
+        ReminderHistoryAdapter()
+    }
+
+    private val hiddenMedicineReminders = mutableMapOf<Long, Long>()
     private var allMedicines: List<Medicine> = emptyList()
     private var clockJob: Job? = null
 
@@ -43,6 +56,7 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyEdgeToEdge(binding.root)
 
         if (profileId == -1L) {
             finish()
@@ -50,9 +64,13 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         if (savedInstanceState != null) {
-            val hiddenIds = savedInstanceState.getLongArray(STATE_HIDDEN_MEDICINES)
-            hiddenIds?.let { array ->
-                hiddenMedicineIds.addAll(array.toList())
+            val hiddenIds = savedInstanceState.getLongArray(STATE_HIDDEN_MEDICINE_IDS)
+            val hiddenTimes = savedInstanceState.getLongArray(STATE_HIDDEN_MEDICINE_TIMES)
+            if (hiddenIds != null && hiddenTimes != null && hiddenIds.size == hiddenTimes.size) {
+                hiddenMedicineReminders.clear()
+                hiddenIds.indices.forEach { index ->
+                    hiddenMedicineReminders[hiddenIds[index]] = hiddenTimes[index]
+                }
             }
         }
 
@@ -60,6 +78,7 @@ class DashboardActivity : AppCompatActivity() {
         setupRecyclerView()
         setupListeners()
         observeMedicines()
+        observeHistory()
     }
 
     override fun onStart() {
@@ -74,7 +93,17 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putLongArray(STATE_HIDDEN_MEDICINES, hiddenMedicineIds.toLongArray())
+        val size = hiddenMedicineReminders.size
+        val ids = LongArray(size)
+        val times = LongArray(size)
+        var index = 0
+        hiddenMedicineReminders.forEach { (id, reminderTime) ->
+            ids[index] = id
+            times[index] = reminderTime
+            index++
+        }
+        outState.putLongArray(STATE_HIDDEN_MEDICINE_IDS, ids)
+        outState.putLongArray(STATE_HIDDEN_MEDICINE_TIMES, times)
     }
 
     private fun setupToolbar() {
@@ -86,6 +115,11 @@ class DashboardActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         binding.medicinesRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.medicinesRecyclerView.adapter = adapter
+        binding.medicinesRecyclerView.isNestedScrollingEnabled = false
+
+        binding.historyRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.historyRecyclerView.adapter = historyAdapter
+        binding.historyRecyclerView.isNestedScrollingEnabled = false
     }
 
     private fun setupListeners() {
@@ -107,13 +141,41 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    private fun observeHistory() {
+        lifecycleScope.launch {
+            viewModel.history.collectLatest { history ->
+                binding.historyEmptyStateTextView.isVisible = history.isEmpty()
+                binding.historyRecyclerView.isVisible = history.isNotEmpty()
+                historyAdapter.submitList(history)
+            }
+        }
+    }
+
+    private fun onMedicineMarkedDone(medicine: Medicine) {
+        hiddenMedicineReminders[medicine.id] = medicine.nextReminderTimeMillis
+        viewModel.markReminderTaken(medicine)
+        updateVisibleMedicines()
+    }
+
     private fun onMedicineDismissed(medicine: Medicine) {
-        hiddenMedicineIds.add(medicine.id)
+        hiddenMedicineReminders[medicine.id] = medicine.nextReminderTimeMillis
+        viewModel.dismissReminder(medicine)
         updateVisibleMedicines()
     }
 
     private fun updateVisibleMedicines() {
-        val visibleMedicines = allMedicines.filterNot { hiddenMedicineIds.contains(it.id) }
+        val medicinesById = allMedicines.associateBy { it.id }
+        val iterator = hiddenMedicineReminders.iterator()
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            val medicine = medicinesById[entry.key]
+            if (medicine == null || medicine.nextReminderTimeMillis != entry.value) {
+                iterator.remove()
+            }
+        }
+        val visibleMedicines = allMedicines.filterNot { medicine ->
+            hiddenMedicineReminders[medicine.id] == medicine.nextReminderTimeMillis
+        }
         binding.emptyStateTextView.isVisible = visibleMedicines.isEmpty()
         binding.medicinesRecyclerView.isVisible = visibleMedicines.isNotEmpty()
         adapter.submitList(visibleMedicines)
@@ -140,7 +202,8 @@ class DashboardActivity : AppCompatActivity() {
         const val EXTRA_PROFILE_ID = "dashboard_profile_id"
         const val EXTRA_PROFILE_NAME = "dashboard_profile_name"
 
-        private const val STATE_HIDDEN_MEDICINES = "state_hidden_medicines"
+        private const val STATE_HIDDEN_MEDICINE_IDS = "state_hidden_medicine_ids"
+        private const val STATE_HIDDEN_MEDICINE_TIMES = "state_hidden_medicine_times"
         private const val CLOCK_UPDATE_INTERVAL_MILLIS = 1000L
     }
 }

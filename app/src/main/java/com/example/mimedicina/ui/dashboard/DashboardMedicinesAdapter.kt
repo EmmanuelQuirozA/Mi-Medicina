@@ -16,7 +16,8 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
 class DashboardMedicinesAdapter(
-    private val onMedicineDismissed: (Medicine) -> Unit
+    private val onMarkDone: (Medicine) -> Unit,
+    private val onDismiss: (Medicine) -> Unit
 ) : ListAdapter<Medicine, DashboardMedicinesAdapter.ViewHolder>(DiffCallback) {
 
     private var currentTimeMillis: Long = System.currentTimeMillis()
@@ -38,14 +39,19 @@ class DashboardMedicinesAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position), currentTimeMillis, onMedicineDismissed)
+        holder.bind(getItem(position), currentTimeMillis, onMarkDone, onDismiss)
     }
 
     class ViewHolder(
         private val binding: ItemDashboardMedicineBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(medicine: Medicine, currentTimeMillis: Long, onMedicineDismissed: (Medicine) -> Unit) {
+        fun bind(
+            medicine: Medicine,
+            currentTimeMillis: Long,
+            onMarkDone: (Medicine) -> Unit,
+            onDismiss: (Medicine) -> Unit
+        ) {
             val context = binding.root.context
             binding.medicineNameTextView.text = medicine.name
 
@@ -59,18 +65,7 @@ class DashboardMedicinesAdapter(
             binding.medicineFrequencyTextView.text =
                 context.getString(R.string.medicine_take_every_format, medicine.frequencyHours)
 
-            val nextReminderText = if (medicine.nextReminderTimeMillis > 0L) {
-                context.getString(
-                    R.string.dashboard_next_dose_format,
-                    formatDateTime(medicine.nextReminderTimeMillis)
-                )
-            } else {
-                context.getString(
-                    R.string.dashboard_next_dose_format,
-                    context.getString(R.string.next_alarm_unavailable)
-                )
-            }
-            binding.medicineNextTimeTextView.text = nextReminderText
+            binding.medicineNextTimeTextView.text = buildNextReminderLabel(context, medicine, currentTimeMillis)
 
             val status = buildStatusText(context, medicine, currentTimeMillis)
             binding.medicineStatusTextView.text = status.text
@@ -78,8 +73,34 @@ class DashboardMedicinesAdapter(
                 ContextCompat.getColor(context, status.colorRes)
             )
 
-            binding.markDoneButton.setOnClickListener { onMedicineDismissed(medicine) }
-            binding.dismissButton.setOnClickListener { onMedicineDismissed(medicine) }
+            binding.markDoneButton.setOnClickListener { onMarkDone(medicine) }
+            binding.dismissButton.setOnClickListener { onDismiss(medicine) }
+        }
+
+        private fun buildNextReminderLabel(
+            context: android.content.Context,
+            medicine: Medicine,
+            currentTimeMillis: Long
+        ): String {
+            val nextReminder = medicine.nextReminderTimeMillis
+            if (nextReminder <= 0L) {
+                return context.getString(
+                    R.string.dashboard_next_dose_format,
+                    context.getString(R.string.next_alarm_unavailable)
+                )
+            }
+
+            val diff = currentTimeMillis - nextReminder
+            val threshold = TimeUnit.MINUTES.toMillis(1)
+            return if (diff > threshold) {
+                val delayText = formatDuration(context, diff)
+                context.getString(R.string.dashboard_delay_label_format, delayText)
+            } else {
+                context.getString(
+                    R.string.dashboard_next_dose_format,
+                    formatDateTime(nextReminder)
+                )
+            }
         }
 
         private fun buildStatusText(

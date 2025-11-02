@@ -47,90 +47,129 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/dashboard_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="24dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="4dp"
-            app:strokeColor="@color/divider_light"
-            app:strokeWidth="1dp">
+            android:orientation="vertical"
+            android:paddingBottom="24dp"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="24dp">
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/divider_light"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:id="@+id/current_time_label_text_view"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/dashboard_current_time_label"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                <TextView
-                    android:id="@+id/current_time_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/text_primary"
-                    android:textSize="32sp"
-                    android:textStyle="bold"
-                    tools:text="12:45:20" />
+                    <TextView
+                        android:id="@+id/current_time_label_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dashboard_current_time_label"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/current_time_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_primary"
+                        android:textSize="32sp"
+                        android:textStyle="bold"
+                        tools:text="12:45:20" />
 
-        </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/manage_medicines_button"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/dashboard_manage_button"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            app:icon="@drawable/ic_bell"
-            app:iconGravity="textStart"
-            app:iconPadding="12dp"
-            app:iconTint="@color/white"
-            app:backgroundTint="@color/blue_primary" />
+            </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:id="@+id/empty_state_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="24dp"
-            android:text="@string/dashboard_empty_message"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            android:textColor="@color/text_secondary"
-            android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/manage_medicines_button"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/dashboard_manage_button"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/blue_primary"
+                app:icon="@drawable/ic_bell"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp"
+                app:iconTint="@color/white" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/medicines_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingBottom="24dp"
-            android:paddingTop="8dp"
-            tools:listitem="@layout/item_dashboard_medicine" />
+            <TextView
+                android:id="@+id/empty_state_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="24dp"
+                android:text="@string/dashboard_empty_message"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:textColor="@color/text_secondary"
+                android:visibility="gone" />
 
-    </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/medicines_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:paddingBottom="16dp"
+                android:paddingTop="8dp"
+                tools:listitem="@layout/item_dashboard_medicine" />
+
+            <TextView
+                android:id="@+id/history_title_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/dashboard_history_title"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/history_empty_state_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:text="@string/dashboard_history_empty"
+                android:textAlignment="center"
+                android:textColor="@color/text_secondary"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/history_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_reminder_history"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -15,7 +15,6 @@ import com.example.mimedicina.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 class MedicineAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -44,13 +43,14 @@ class MedicineAlarmReceiver : BroadcastReceiver() {
 
         CoroutineScope(Dispatchers.IO).launch {
             val repository = app.medicinesRepository
+            val historyRepository = app.reminderHistoryRepository
             val medicine = repository.getMedicine(medicineId)
-            if (medicine != null && medicine.alarmEnabled) {
-                val nextReminderTime = System.currentTimeMillis() +
-                    TimeUnit.HOURS.toMillis(medicine.frequencyHours.toLong())
-                val updatedMedicine = medicine.copy(nextReminderTimeMillis = nextReminderTime)
-                repository.updateMedicine(updatedMedicine)
-                app.alarmScheduler.schedule(updatedMedicine)
+            if (medicine != null) {
+                if (medicine.alarmEnabled) {
+                    historyRepository.recordReminderTriggered(medicine)
+                } else {
+                    app.alarmScheduler.cancel(medicineId)
+                }
             } else {
                 app.alarmScheduler.cancel(medicineId)
             }

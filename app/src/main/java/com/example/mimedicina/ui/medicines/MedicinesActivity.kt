@@ -26,6 +26,7 @@ import com.example.mimedicina.R
 import com.example.mimedicina.databinding.ActivityMedicinesBinding
 import com.example.mimedicina.databinding.DialogAddMedicineBinding
 import com.example.mimedicina.model.Medicine
+import com.example.mimedicina.ui.common.applyEdgeToEdge
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -79,6 +80,7 @@ class MedicinesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMedicinesBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyEdgeToEdge(binding.root)
 
         if (profileId == -1L) {
             finish()
