@@ -15,6 +15,7 @@ import com.example.mimedicina.MiMedicinaApp
 import com.example.mimedicina.R
 import com.example.mimedicina.databinding.ActivityProfilesBinding
 import com.example.mimedicina.model.Profile
+import com.example.mimedicina.ui.common.applyEdgeToEdge
 import com.example.mimedicina.ui.dashboard.DashboardActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -39,6 +40,7 @@ class ProfilesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityProfilesBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyEdgeToEdge(binding.root)
 
         setSupportActionBar(binding.toolbar)
 
