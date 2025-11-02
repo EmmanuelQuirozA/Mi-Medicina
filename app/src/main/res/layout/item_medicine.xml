@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
@@ -24,7 +25,9 @@
             android:layout_height="64dp"
             android:background="@drawable/bg_medicine_icon"
             android:clipToOutline="true"
+            android:outlineProvider="background"
             android:padding="8dp"
+            tools:targetApi="31"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -99,27 +102,27 @@
             app:layout_constraintStart_toEndOf="@id/medicine_image_container"
             app:layout_constraintTop_toBottomOf="@id/medicine_comments_text_view" />
 
-        <ImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/medicine_alarm_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/bg_alarm_button_inactive"
             android:contentDescription="@string/enable_alarm"
             android:scaleType="center"
-            android:src="@drawable/ic_bell"
-            android:tint="@color/icon_inactive"
+            app:srcCompat="@drawable/ic_bell"
+            app:tint="@color/icon_inactive"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/medicine_name_text_view" />
 
-        <ImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/delete_medicine_button"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_delete_button"
             android:contentDescription="@string/delete_medicine"
-            android:src="@drawable/ic_delete"
-            android:tint="@color/danger_red"
+            app:srcCompat="@drawable/ic_delete"
+            app:tint="@color/danger_red"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/medicine_alarm_button" />
 
